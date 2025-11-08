@@ -5,6 +5,9 @@ import pluginNavigation from "@11ty/eleventy-navigation";
 import { eleventyImageTransformPlugin } from "@11ty/eleventy-img";
 
 import pluginFilters from "./_config/filters.js";
+import MarkdownIt from "markdown-it";
+import markdownItFootnote from "markdown-it-footnote";
+import markdownItToc from "markdown-it-table-of-contents";
 
 /** @param {import("@11ty/eleventy").UserConfig} eleventyConfig */
 export default async function(eleventyConfig) {
@@ -59,6 +62,21 @@ export default async function(eleventyConfig) {
 	eleventyConfig.addPlugin(pluginNavigation);
 	eleventyConfig.addPlugin(HtmlBasePlugin);
 	eleventyConfig.addPlugin(InputPathToUrlTransformPlugin);
+
+	// Markdown-it setup: footnotes + table of contents
+	const md = new MarkdownIt({
+		html: true,
+		linkify: true,
+		breaks: false,
+	});
+	md.use(markdownItFootnote);
+	md.use(markdownItToc, {
+		includeLevel: [2,3,4],
+		containerClass: "table-of-contents",
+		markerPattern: /^\[\[toc\]\]/im,
+	});
+	// Apply markdown-it instance globally
+	eleventyConfig.setLibrary("md", md);
 
 	eleventyConfig.addPlugin(feedPlugin, {
 		type: "atom", // or "rss", "json"
@@ -121,6 +139,8 @@ export default async function(eleventyConfig) {
 		// by default we use Eleventy’s built-in `slugify` filter:
 		// slugify: eleventyConfig.getFilter("slugify"),
 		// selector: "h1,h2,h3,h4,h5,h6", // default
+		// Avoid conflicts with footnote-generated ids (e.g., fn1)
+		checkDuplicates: false,
 	});
 
 	eleventyConfig.addShortcode("currentBuildDate", () => {
