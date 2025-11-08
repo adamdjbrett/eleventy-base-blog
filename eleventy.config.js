@@ -90,6 +90,14 @@ export default async function(eleventyConfig) {
 		// Output formats for each image.
 		formats: ["avif", "webp", "auto"],
 
+		// Ensure build writes static files and HTML points to them (no dev-server URLs)
+		transformOnRequest: false,
+
+		// Optionally, write all generated image files to a single folder in the output
+		// and use absolute URLs so they work on any static host.
+		urlPath: "/img/",
+		outputDir: "./_site/img/",
+
 		// widths: ["auto"],
 
 		failOnError: false,
